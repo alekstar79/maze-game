@@ -1,0 +1,717 @@
+/* ============================================================
+   Cascade Layers
+   ============================================================ */
+@layer tokens, reset, base, layout, components, utilities;
+
+/* ============================================================
+   Tokens
+   ============================================================ */
+@layer tokens {
+  /* Тема-инвариантные токены: spacing, типографика, радиусы, размеры.
+     Объявлены один раз; не зависят от light/dark. */
+  :root {
+    /* Spacing */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-8: 3rem;
+
+    /* Typography */
+    --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'SF Mono', 'Cascadia Code', 'Roboto Mono', monospace;
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.5rem;
+    --text-2xl: 2rem;
+
+    /* Radii & Shadows */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px rgb(0 0 0 / 0.07);
+    --shadow-glass: 0 8px 32px rgb(0 0 0 / 0.10);
+
+    /* Sizing */
+    --touch-target: 44px;
+    --container-max: 1400px;
+  }
+
+  /* ============================================================
+     LIGHT THEME (default)
+     Полный набор из 14 UI-токенов + 6 Canvas-токенов + color-scheme.
+     Canvas-токены — 1:1 с исходной константой COLORS в renderer.js.
+     ============================================================ */
+  :root {
+    color-scheme: light;
+
+    /* UI-токены */
+    --color-bg: #f7faf7;
+    --color-surface: #ffffff;
+    --color-surface-glass: rgba(255, 255, 255, 0.78);
+    --color-text: #111827;
+    --color-text-muted: #4b5563;
+    --color-primary: #1d4ed8;
+    --color-primary-hover: #1e40af;
+    --color-on-primary: #ffffff;
+    --color-success: #166534;
+    --color-danger: #b91c1c;
+    --color-warning: #92400e;
+    --color-border: #64748b;
+    --color-focus: #2563eb;
+
+    /* Canvas-токены (light) — исходные значения COLORS */
+    --color-canvas-bg: #ffffee;
+    --color-canvas-wall: #000000;
+    --color-canvas-explored: #ff0000;
+    --color-canvas-path: #ffff00;
+    --color-canvas-player-fill: #ff6666;
+    --color-canvas-player-stroke: #66ff66;
+  }
+
+  /* ============================================================
+     DARK THEME (system preference)
+     Гард :not([data-theme]) — явный override на html побеждает
+     медиа-запрос в обе стороны (dual-signal pattern).
+     Canvas-токены — адаптированы под тёмный фон.
+     ============================================================ */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      color-scheme: dark;
+
+      /* UI-токены */
+      --color-bg: #0b1120;
+      --color-surface: #111827;
+      --color-surface-glass: rgba(17, 24, 39, 0.78);
+      --color-text: #f8fafc;
+      --color-text-muted: #cbd5e1;
+      --color-primary: #60a5fa;
+      --color-primary-hover: #3b82f6;
+      --color-on-primary: #0b1120;
+      --color-success: #4ade80;
+      --color-danger: #f87171;
+      --color-warning: #fbbf24;
+      --color-border: #64748b;
+      --color-focus: #93c5fd;
+
+      /* Canvas-токены (dark):
+         bg — тёмный фон;
+         wall — очень светлый серый (почти белый), чтобы тонкие линии стен
+                имели высокий визуальный вес и не терялись на фоне пути;
+         path — тот же жёлтый, что и в light-теме (#ffff00): непрозрачный,
+                без «мутного» смешения с фоном. «Воздух» между путём и
+                стенами обеспечивается отступом в paintCell и толщиной
+                стен 2 px, а не полупрозрачностью;
+         explored — светло-красный;
+         player-fill — светло-розовый;
+         player-stroke — светло-зелёный. */
+      --color-canvas-bg: #253040;
+      --color-canvas-wall: #f8fafc;
+      --color-canvas-explored: #ff8080;
+      --color-canvas-path: #ffff00;
+      --color-canvas-player-fill: #ff9999;
+      --color-canvas-player-stroke: #99ff99;
+    }
+  }
+
+  /* ============================================================
+     EXPLICIT LIGHT OVERRIDE (data-theme="light")
+     ============================================================ */
+  :root[data-theme="light"] {
+    color-scheme: light;
+
+    --color-bg: #f7faf7;
+    --color-surface: #ffffff;
+    --color-surface-glass: rgba(255, 255, 255, 0.78);
+    --color-text: #111827;
+    --color-text-muted: #4b5563;
+    --color-primary: #1d4ed8;
+    --color-primary-hover: #1e40af;
+    --color-on-primary: #ffffff;
+    --color-success: #166534;
+    --color-danger: #b91c1c;
+    --color-warning: #92400e;
+    --color-border: #64748b;
+    --color-focus: #2563eb;
+
+    --color-canvas-bg: #ffffee;
+    --color-canvas-wall: #000000;
+    --color-canvas-explored: #ff0000;
+    --color-canvas-path: #ffff00;
+    --color-canvas-player-fill: #ff6666;
+    --color-canvas-player-stroke: #66ff66;
+  }
+
+  /* ============================================================
+     EXPLICIT DARK OVERRIDE (data-theme="dark")
+     ============================================================ */
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --color-bg: #0b1120;
+    --color-surface: #111827;
+    --color-surface-glass: rgba(17, 24, 39, 0.78);
+    --color-text: #f8fafc;
+    --color-text-muted: #cbd5e1;
+    --color-primary: #60a5fa;
+    --color-primary-hover: #3b82f6;
+    --color-on-primary: #0b1120;
+    --color-success: #4ade80;
+    --color-danger: #f87171;
+    --color-warning: #fbbf24;
+    --color-border: #64748b;
+    --color-focus: #93c5fd;
+
+    --color-canvas-bg: #253040;
+    --color-canvas-wall: #f8fafc;
+    --color-canvas-explored: #ff8080;
+    --color-canvas-path: #ffff00;
+    --color-canvas-player-fill: #ff9999;
+    --color-canvas-player-stroke: #99ff99;
+  }
+}
+
+/* ============================================================
+   Reset
+   ============================================================ */
+@layer reset {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100vh;
+    line-height: 1.5;
+    font-family: var(--font-sans), serif;
+    color: var(--color-text);
+    background-color: var(--color-bg);
+  }
+
+  img, canvas, svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  button, input, select, textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  /* Уважение к reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+@layer base {
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .skip-link {
+    position: absolute;
+    top: var(--space-2);
+    left: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    border-radius: var(--radius-sm);
+    transform: translateY(-200%);
+    transition: transform 150ms ease;
+    z-index: 100;
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+
+  /* Фокус-индикаторы */
+  :focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Убираем стандартный outline только если есть кастомный */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Плавная смена темы для UI-chrome (не для canvas: у него свой redraw() в src/app/game.js, анимировать нечего).
+     При prefers-reduced-motion: reduce глобальное правило в @layer reset сбивает длительность до 0.01ms. */
+  @media (prefers-reduced-motion: no-preference) {
+    body,
+    .hud,
+    .panel,
+    .canvas-wrapper {
+      transition:
+        background-color 180ms ease,
+        color 180ms ease,
+        border-color 180ms ease;
+    }
+  }
+}
+
+/* ============================================================
+   Layout
+   ============================================================ */
+@layer layout {
+  .app-shell {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding: var(--space-4);
+  }
+
+  .hud {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-surface-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .hud__settings {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .control-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .control-inline select {
+    min-height: 36px;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .game-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 1024px) {
+    .game-layout {
+      grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+      align-items: start;
+    }
+  }
+
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .canvas-wrapper {
+    position: relative;
+    width: 100%;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    /* Соотношение сторон для предотвращения CLS */
+    aspect-ratio: 8 / 5;
+  }
+
+  .canvas-wrapper canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+/* ============================================================
+   Components
+   ============================================================ */
+@layer components {
+  /* HUD */
+  .hud__timer {
+    font-family: var(--font-mono), serif;
+    font-size: var(--text-xl);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text);
+    transition: color 200ms ease;
+    min-width: 5ch;
+    text-align: center;
+  }
+
+  .hud__timer.is-urgent {
+    color: var(--color-danger);
+    animation: pulse 1s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .hud__status {
+    font-weight: 600;
+    flex: 1;
+    text-align: right;
+    color: var(--color-text);
+  }
+
+  .hud__status.status-success {
+    color: var(--color-success);
+  }
+
+  .hud__status.status-error {
+    color: var(--color-danger);
+  }
+
+  /* Панели (glassmorphism) */
+  .panel {
+    padding: var(--space-4);
+    background: var(--color-surface-glass);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-glass);
+    container-type: inline-size;
+  }
+
+  .panel__title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin-bottom: var(--space-3);
+  }
+
+  /* Сетка управления */
+  .controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  @container (max-width: 360px) {
+    .controls-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .field label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+
+  .field input,
+  .field select {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+
+  .field input:focus,
+  .field select:focus {
+    border-color: var(--color-focus);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-focus) 20%, transparent);
+  }
+
+  /* Форма размеров */
+  .size-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .size-form .field {
+    flex: 1 1 80px;
+  }
+
+  /* Кнопки */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--touch-target);
+    min-width: var(--touch-target);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: var(--text-base);
+    transition: background-color 150ms ease, border-color 150ms ease, transform 100ms ease;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .btn:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  .btn--primary {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+
+  .btn--primary:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+  }
+
+  .btn--secondary {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+    color: var(--color-text);
+  }
+
+  .btn--secondary:hover:not(:disabled) {
+    border-color: var(--color-primary);
+  }
+
+  .btn--outline {
+    background: transparent;
+    border-color: var(--color-border);
+    color: var(--color-text);
+  }
+
+  .btn--outline:hover:not(:disabled) {
+    border-color: var(--color-primary);
+  }
+
+  .btn--small {
+    min-height: 36px;
+    min-width: 36px;
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    /* Для совместимости с :has() */
+  }
+
+  /* Использование :has() для стилизации disabled-состояния группы */
+  .button-row:has(.btn:disabled) {
+    /* можно добавить визуальную подсказку */
+  }
+
+  /* Аккаунт */
+  .auth-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .auth-actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  /* Статистика (bento) */
+  #stats {
+    container-type: inline-size;
+  }
+
+  #stats h3 {
+    font-size: var(--text-base);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+
+  #stats .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--space-2);
+  }
+
+  #stats .stat-card {
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+  }
+
+  #stats .stat-card strong {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  #stats .stat-card span {
+    font-weight: 600;
+  }
+
+  /* Модалка */
+  .dialog {
+    margin: auto; /* Центрирование из-за глобального сброса margin */
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: var(--shadow-glass);
+    max-width: 400px;
+    width: calc(100% - var(--space-8));
+  }
+
+  .dialog::backdrop {
+    background: rgb(0 0 0 / 0.45);
+    backdrop-filter: blur(4px);
+  }
+
+  .dialog__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .dialog__form h2 {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-2);
+  }
+
+  .dialog input[type="text"] {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    width: 100%;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+
+  .dialog input[type="text"]:focus {
+    border-color: var(--color-focus);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-focus) 20%, transparent);
+    outline: none;
+  }
+
+  .dialog__actions {
+    display: flex;
+    gap: var(--space-2);
+    justify-content: flex-end;
+    margin-top: var(--space-2);
+  }
+
+  /* Инструкции */
+  .instructions {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  kbd {
+    padding: 0.1em 0.3em;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono), serif;
+    font-size: 0.9em;
+  }
+}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+@layer utilities {
+  /* Адаптивность canvas на очень узких экранах */
+  @media (max-width: 480px) {
+    .app-shell {
+      padding: var(--space-2);
+    }
+
+    .hud {
+      padding: var(--space-2);
+    }
+
+    .hud__timer {
+      font-size: var(--text-lg);
+    }
+
+    .hud__settings {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+
+  /* View Transitions (прогрессивное улучшение) */
+  @supports (view-transition-name: none) {
+    .hud {
+      view-transition-name: hud;
+    }
+    .canvas-wrapper {
+      view-transition-name: game-board;
+    }
+  }
+}
