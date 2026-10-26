@@ -1,0 +1,41 @@
+{
+  "name": "@alekstar79/maze-game",
+  "description": "Browser-based maze game built with TypeScript, HTML5 Canvas and Vite. Two timer modes, BFS autosolve, per-user statistics, themes and EN/RU localization.",
+  "author": "Aleksey Tarasenko <alekstar79@yandex.ru>",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alekstar79/maze-game.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alekstar79/maze-game/issues"
+  },
+  "homepage": "https://github.com/alekstar79/maze-game#readme",
+  "keywords": [
+    "typescript",
+    "vite",
+    "canvas",
+    "bfs",
+    "pathfinding",
+    "localstorage",
+    "maze",
+    "i18n",
+    "a11y"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
